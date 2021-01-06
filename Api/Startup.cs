@@ -1,4 +1,6 @@
 using Api.Models;
+using Api.Models.OData.Actions;
+using Api.Models.OData.Functions;
 using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OData.Edm;
+using System.Linq;
 
 namespace Api
 {
@@ -54,12 +57,36 @@ namespace Api
             });
         }
 
-        private IEdmModel GetEdmModel()
+        private static IEdmModel GetEdmModel()
         {
             var builder = new ODataConventionModelBuilder();
             builder.EntitySet<Category>("Categories");
-            builder.EntitySet<Manufacturer>("Manufacturers");
+            builder.EntitySet<Manufacturer>("Producers");
             builder.EntitySet<Vehicle>("Vehicles");
+
+            #region Actions
+            builder.EntityType<Category>().Action("TotalVehiclesByCategory").Returns<int>();
+            builder.EntityType<Category>().Collection.Action("TotalCategoryCount").Returns<int>();
+            builder.EntityType<Category>().Action("VehicleCountByManufacturer").Returns<int>().Parameter<int>("ManufacturerId");
+            
+            var actionTotal = builder.EntityType<Category>().Action("VehicleCountByYearManufacturer").Returns<int>();
+            actionTotal.Parameter<int>("ManufacturerId");
+            actionTotal.Parameter<int>("Year");
+
+            builder.EntityType<Category>().Action("VehicleHpByManufacturer").Returns<int>().Parameter<ActionForCategory>("ActionForCategory");
+            #endregion
+
+            #region Function
+            // Bound Functions
+            builder.EntityType<Category>().Collection.Function("VehicleCounts").Returns<IQueryable<VehicleCountForCategory>>();
+
+            var functionYear = builder.EntityType<Category>().Function("CalculateVehicleAge").Returns<IQueryable<YearForVehicle>>();
+            functionYear.Parameter<int>("ManufacturerId");
+            functionYear.Parameter<int>("Year");
+
+            // Unbound Functions
+            builder.Function("GetTaxRateByCountry").Returns<double>().Parameter<string>("Country");
+            #endregion
 
             return builder.GetEdmModel();
         }

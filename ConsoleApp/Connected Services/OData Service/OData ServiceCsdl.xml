@@ -1,0 +1,111 @@
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Api.Models" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Category">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="Description" Type="Edm.String" />
+        <Property Name="CreatedOn" Type="Edm.DateTimeOffset" Nullable="false" />
+        <NavigationProperty Name="Vehicles" Type="Collection(Api.Models.Vehicle)" />
+      </EntityType>
+      <EntityType Name="Manufacturer">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="CreatedOn" Type="Edm.DateTimeOffset" Nullable="false" />
+        <NavigationProperty Name="Vehicles" Type="Collection(Api.Models.Vehicle)" />
+      </EntityType>
+      <EntityType Name="Vehicle">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="CategoryId" Type="Edm.Int32" />
+        <Property Name="ManufacturerId" Type="Edm.Int32" />
+        <Property Name="Generation" Type="Edm.String" />
+        <Property Name="Engine" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Model" Type="Edm.String" />
+        <Property Name="BodyType" Type="Edm.String" />
+        <Property Name="Year" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Color" Type="Edm.String" />
+        <Property Name="Seats" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Doors" Type="Edm.Int32" Nullable="false" />
+        <Property Name="CreatedOn" Type="Edm.DateTimeOffset" Nullable="false" />
+        <NavigationProperty Name="Category" Type="Api.Models.Category">
+          <ReferentialConstraint Property="CategoryId" ReferencedProperty="Id" />
+        </NavigationProperty>
+        <NavigationProperty Name="Manufacturer" Type="Api.Models.Manufacturer">
+          <ReferentialConstraint Property="ManufacturerId" ReferencedProperty="Id" />
+        </NavigationProperty>
+      </EntityType>
+    </Schema>
+    <Schema Namespace="Api.Models.OData.Actions" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <ComplexType Name="ActionForCategory">
+        <Property Name="ManufacturerId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Engine" Type="Edm.Int32" Nullable="false" />
+      </ComplexType>
+    </Schema>
+    <Schema Namespace="System.Linq" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <ComplexType Name="IQueryable_1OfVehicleCountForCategory" Abstract="true" />
+      <ComplexType Name="IQueryable_1OfYearForVehicle" Abstract="true" />
+    </Schema>
+    <Schema Namespace="Default" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <Action Name="TotalVehiclesByCategory" IsBound="true">
+        <Parameter Name="bindingParameter" Type="Api.Models.Category" />
+        <ReturnType Type="Edm.Int32" Nullable="false" />
+      </Action>
+      <Action Name="TotalCategoryCount" IsBound="true">
+        <Parameter Name="bindingParameter" Type="Collection(Api.Models.Category)" />
+        <ReturnType Type="Edm.Int32" Nullable="false" />
+      </Action>
+      <Action Name="VehicleCountByManufacturer" IsBound="true">
+        <Parameter Name="bindingParameter" Type="Api.Models.Category" />
+        <Parameter Name="ManufacturerId" Type="Edm.Int32" Nullable="false" />
+        <ReturnType Type="Edm.Int32" Nullable="false" />
+      </Action>
+      <Action Name="VehicleCountByYearManufacturer" IsBound="true">
+        <Parameter Name="bindingParameter" Type="Api.Models.Category" />
+        <Parameter Name="ManufacturerId" Type="Edm.Int32" Nullable="false" />
+        <Parameter Name="Year" Type="Edm.Int32" Nullable="false" />
+        <ReturnType Type="Edm.Int32" Nullable="false" />
+      </Action>
+      <Action Name="VehicleHpByManufacturer" IsBound="true">
+        <Parameter Name="bindingParameter" Type="Api.Models.Category" />
+        <Parameter Name="ActionForCategory" Type="Api.Models.OData.Actions.ActionForCategory" />
+        <ReturnType Type="Edm.Int32" Nullable="false" />
+      </Action>
+      <Function Name="VehicleCounts" IsBound="true">
+        <Parameter Name="bindingParameter" Type="Collection(Api.Models.Category)" />
+        <ReturnType Type="System.Linq.IQueryable_1OfVehicleCountForCategory" />
+      </Function>
+      <Function Name="CalculateVehicleAge" IsBound="true">
+        <Parameter Name="bindingParameter" Type="Api.Models.Category" />
+        <Parameter Name="ManufacturerId" Type="Edm.Int32" Nullable="false" />
+        <Parameter Name="Year" Type="Edm.Int32" Nullable="false" />
+        <ReturnType Type="System.Linq.IQueryable_1OfYearForVehicle" />
+      </Function>
+      <Function Name="GetTaxRateByCountry">
+        <Parameter Name="Country" Type="Edm.String" />
+        <ReturnType Type="Edm.Double" Nullable="false" />
+      </Function>
+      <EntityContainer Name="Container">
+        <EntitySet Name="Categories" EntityType="Api.Models.Category">
+          <NavigationPropertyBinding Path="Vehicles" Target="Vehicles" />
+        </EntitySet>
+        <EntitySet Name="Producers" EntityType="Api.Models.Manufacturer">
+          <NavigationPropertyBinding Path="Vehicles" Target="Vehicles" />
+        </EntitySet>
+        <EntitySet Name="Vehicles" EntityType="Api.Models.Vehicle">
+          <NavigationPropertyBinding Path="Category" Target="Categories" />
+          <NavigationPropertyBinding Path="Manufacturer" Target="Producers" />
+        </EntitySet>
+        <FunctionImport Name="GetTaxRateByCountry" Function="Default.GetTaxRateByCountry" IncludeInServiceDocument="true" />
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

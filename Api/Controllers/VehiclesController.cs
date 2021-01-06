@@ -1,6 +1,7 @@
 ﻿using Api.Models;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace Api.Controllers
 {
@@ -16,6 +17,12 @@ namespace Api.Controllers
         public IActionResult Get()
         {
             return Ok(_dbContext.Vehicles);
+        }
+
+        [EnableQuery]
+        public IActionResult Get([FromODataUri] int key)
+        {
+            return Ok(_dbContext.Vehicles.Where(w => w.Id == key));
         }
     }
 }
