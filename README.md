@@ -1,2 +1,2 @@
 # ASP.NET Core Web Api OData Implementation
-ASP.NET Core OData Implementation
+https://burakneis.com/asp-net-core-web-api-odata/
